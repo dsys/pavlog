@@ -1,7 +1,8 @@
 import ConsoleListener from './listeners/ConsoleListener'
 import EventEmitter from 'events'
+import _ from 'lodash'
 
-export const LEVELS = [
+const LEVELS = [
   'fatal',
   'error',
   'warn',
@@ -10,13 +11,13 @@ export const LEVELS = [
   'trace'
 ]
 
-export const DEFAULT_LEVEL = 'info'
+const DEFAULT_LEVEL = 'info'
 
-export function isValidLevel (level) {
+function isValidLevel (level) {
   return LEVELS.indexOf(level) !== -1
 }
 
-export function compareLevels (a, b) {
+function compareLevels (a, b) {
   const aVal = LEVELS.indexOf(a) 
   const bVal = LEVELS.indexOf(b) 
   if (aVal < bVal) {
@@ -29,15 +30,18 @@ export function compareLevels (a, b) {
 }
 
 function combineNames (...names) {
-  const nameParts = names.map(n => n.split(':'))
-  return [].concat(...nameParts).join(':')
+  return _(names)
+    .map(n => n.split(':'))
+    .flatten()
+    .compact()
+    .join(':')
 }
 
-function createLogger (name, parentEmitter = null) {
+function createLogger (name = '', parentEmitter = null) {
   const emitter = new EventEmitter()
 
   if (parentEmitter) {
-    emitter.on('log', event => parentEmitter.emit(event))
+    emitter.on('log', ev => parentEmitter.emit('log', ev))
   }
 
   function emitLog (level, name, data) {
@@ -49,16 +53,18 @@ function createLogger (name, parentEmitter = null) {
   }
 
   function use (minLevel, listener) {
-    emitter.on(event => {
-      if (compareLevels(event.level, minLevel) >= 0) {
-        listener(event)
+    emitter.on('log', ev => {
+      if (compareLevels(ev.level, minLevel) >= 0) {
+        listener(ev)
       }
     })
   }
 
-  return Object.assign(...args => {
+  function logger (...args) {
     emitLog(DEFAULT_LEVEL, name, args)
-  }, {
+  }
+
+  const loggerFns = {
     fatal (...args) {
       emitLog('fatal', name, args)
     },
@@ -94,7 +100,13 @@ function createLogger (name, parentEmitter = null) {
     subLogger (subName) {
       return createLogger(combineNames(name, subName), emitter)
     }
-  })
+  }
+
+  for (let fnName in loggerFns) {
+    logger[fnName] = loggerFns[fnName]
+  }
+
+  return logger
 }
 
-export default createLogger([])
+export default createLogger()
