@@ -1,9 +1,8 @@
 {
-  "name": "pavlog",
+  "name": "@pavlov/pavlog",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
-  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "./resources/prepublish.sh"
@@ -20,5 +19,8 @@
   "homepage": "https://github.com/pavlovml/pavlog#readme",
   "dependencies": {
     "debug": "^2.2.0"
+  },
+  "devDependencies": {
+    "babel": "^5.8.23"
   }
 }

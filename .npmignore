@@ -44,6 +44,4 @@ Icon
 *.class
 
 # Sources
-lib
-resources/logo.png
-resources/logo.sketch
+src
