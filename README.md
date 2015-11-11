@@ -12,7 +12,7 @@ Unified logging for npm modules.
 import pavlog from 'pavlog'
 pavlog.useConsole()
 
-const log = pavlog('olive')
+const log = pavlog.subLogger('olive')
 
 log('Start logging...') // default level: info
 log.fatal('All your base are belong to us!')
@@ -20,7 +20,6 @@ log.fatal('All your base are belong to us!')
 
 ## TODO
 
-* Hierarchical logging (for names and listeners)
 * Advanced console pretty-printing (esp. for errors)
 * Listeners for other logging services
 * More documentation

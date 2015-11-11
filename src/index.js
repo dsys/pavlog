@@ -28,62 +28,73 @@ export function compareLevels (a, b) {
   }
 }
 
-export class LogEmitter extends EventEmitter {
-  emitLog (level, name, data) {
+function combineNames (...names) {
+  const nameParts = names.map(n => n.split(':'))
+  return [].concat(...nameParts).join(':')
+}
+
+function createLogger (name, parentEmitter = null) {
+  const emitter = new EventEmitter()
+
+  if (parentEmitter) {
+    emitter.on('log', event => parentEmitter.emit(event))
+  }
+
+  function emitLog (level, name, data) {
     if (isValidLevel(level)) {
-      this.emit('log', { level, name, data })
+      emitter.emit('log', { level, name, data })
     } else {
       throw new Error(`Invalid log level '${level}'`)
     }
   }
 
-  use (minLevel, listener) {
-    this.on(event => {
+  function use (minLevel, listener) {
+    emitter.on(event => {
       if (compareLevels(event.level, minLevel) >= 0) {
         listener(event)
       }
     })
   }
+
+  return Object.assign(...args => {
+    emitLog(DEFAULT_LEVEL, name, args)
+  }, {
+    fatal (...args) {
+      emitLog('fatal', name, args)
+    },
+
+    error (...args) {
+      emitLog('error', name, args)
+    },
+
+    warn (...args) {
+      emitLog('warn', name, args)
+    },
+
+    info (...args) {
+      emitLog('info', name, args)
+    },
+
+    debug (...args) {
+      emitLog('debug', name, args)
+    },
+
+    trace (...args) {
+      emitLog('trace', name, args)
+    },
+
+    use (minLevel, listener) {
+      use(minLevel, listener)
+    },
+
+    useConsole (minLevel = 'info') {
+      use(minLevel, ConsoleListener)
+    },
+
+    subLogger (subName) {
+      return createLogger(combineNames(name, subName), emitter)
+    }
+  })
 }
 
-export const defaultEmitter = new LogEmitter()
-
-export default function (name, emitter = defaultEmitter) {
-  const fn = (...args) => {
-    emitter.emitLog(DEFAULT_LEVEL, name, args)
-  }
-
-  fn.fatal = (...args) => {
-    emitter.emitLog('fatal', name, args)
-  }
-
-  fn.error = (...args) => {
-    emitter.emitLog('error', name, args)
-  }
-
-  fn.warn = (...args) => {
-    emitter.emitLog('warn', name, args)
-  }
-
-  fn.info = (...args) => {
-    emitter.emitLog('info', name, args)
-  }
-
-  fn.debug = (...args) => {
-    emitter.emitLog('debug', name, args)
-  }
-
-  fn.trace = (...args) => {
-    emitter.emitLog('trace', name, args)
-  }
-
-  return fn
-}
-
-export function use (minLevel, listener, emitter = defaultEmitter) {
-  emitter.use(minLevel, listener)
-}
-
-export function useConsole (minLevel = 'info', emitter = defaultEmitter) {
-  use(minLevel, ConsoleListener, emitter)
-}
+export default createLogger([])

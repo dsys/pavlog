@@ -1,9 +1,10 @@
 {
   "name": "@pavlov/pavlog",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "Unified logging for npm modules.",
   "main": "dist/index.js",
   "scripts": {
+    "build": "./node_modules/.bin/babel src --ignore __tests__ --out-dir dist",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "./resources/prepublish.sh"
   },

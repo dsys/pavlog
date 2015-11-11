@@ -10,11 +10,14 @@ function findOrCreateDebugFn (level, name) {
     return debugName
   } else {
     const debugFn = debug(debugName)
+    debug.enable(debugName)
+
     if (STDERR.indexOf(level) === -1) {
       debugFn.log = console.log.bind(console)
     } else {
       debugFn.log = console.error.bind(console)
     }
+
     DEBUG_FNS[debugName] = debugFn
     return debugFn
   }
