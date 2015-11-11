@@ -48,38 +48,36 @@ export class LogEmitter extends EventEmitter {
 
 export const defaultEmitter = new LogEmitter()
 
-function logger (level, name, emitter) {
-  return function (...args) {
-    emitter.emitLog(level, name, args)
-  }
-}
-
 export default function (name, emitter = defaultEmitter) {
-  return logger(DEFAULT_LEVEL, name, emitter)
-}
+  const fn = (...args) => {
+    emitter.emitLog(DEFAULT_LEVEL, name, args)
+  }
 
-export function fatal (name, emitter = defaultEmitter) {
-  return logger('fatal', name, emitter)
-}
+  fn.fatal = (...args) => {
+    emitter.emitLog('fatal', name, args)
+  }
 
-export function error (name, emitter = defaultEmitter) {
-  return logger('error', name, emitter)
-}
+  fn.error = (...args) => {
+    emitter.emitLog('error', name, args)
+  }
 
-export function warn (name, emitter = defaultEmitter) {
-  return logger('warn', name, emitter)
-}
+  fn.warn = (...args) => {
+    emitter.emitLog('warn', name, args)
+  }
 
-export function info (name, emitter = defaultEmitter) {
-  return logger('info', name, emitter)
-}
+  fn.info = (...args) => {
+    emitter.emitLog('info', name, args)
+  }
 
-export function debug (name, emitter = defaultEmitter) {
-  return logger('debug', name, emitter)
-}
+  fn.debug = (...args) => {
+    emitter.emitLog('debug', name, args)
+  }
 
-export function trace (name, emitter = defaultEmitter) {
-  return logger('trace', name, emitter)
+  fn.trace = (...args) => {
+    emitter.emitLog('trace', name, args)
+  }
+
+  return fn
 }
 
 export function use (minLevel, listener, emitter = defaultEmitter) {
