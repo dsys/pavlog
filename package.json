@@ -1,0 +1,24 @@
+{
+  "name": "pavlog",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublish": "./resources/prepublish.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/pavlovml/pavlog.git"
+  },
+  "author": "Alex Kern <alex@kern.io> (http://kern.io)",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/pavlovml/pavlog/issues"
+  },
+  "homepage": "https://github.com/pavlovml/pavlog#readme",
+  "dependencies": {
+    "debug": "^2.2.0"
+  }
+}
