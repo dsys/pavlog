@@ -1,6 +1,6 @@
 {
   "name": "@pavlov/pavlog",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Unified logging for npm modules.",
   "main": "dist/index.js",
   "scripts": {
