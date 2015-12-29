@@ -1,28 +1,59 @@
 {
-  "name": "@pavlov/pavlog",
+  "name": "pavlog",
   "version": "2.0.0",
   "description": "Unified logging for npm modules.",
+  "author": "Alex Kern <alex@kern.io> (http://kern.io)",
+  "homepage": "https://github.com/pavlovml/pavlog#readme",
   "main": "dist/index.js",
+  "license": "BSD-3-Clause",
   "scripts": {
-    "build": "./node_modules/.bin/babel src --ignore __tests__ --out-dir dist",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "./resources/prepublish.sh"
+    "test": "make test"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/pavlovml/pavlog.git"
   },
-  "author": "Alex Kern <alex@kern.io> (http://kern.io)",
-  "license": "BSD-3-Clause",
   "bugs": {
     "url": "https://github.com/pavlovml/pavlog/issues"
   },
-  "homepage": "https://github.com/pavlovml/pavlog#readme",
   "dependencies": {
     "debug": "^2.2.0",
-    "lodash": "^3.10.1"
+    "lodash": "^3.10.1",
+    "through2": "^2.0.0"
   },
   "devDependencies": {
-    "babel": "^5.8.23"
+    "babel-cli": "^6.3.17",
+    "babel-eslint": "^4.1.5",
+    "babel-jest": "^6.0.1",
+    "babel-preset-es2015": "^6.1.18",
+    "babel-preset-stage-0": "^6.3.13",
+    "eslint-plugin-babel": "^2.1.1",
+    "jest-cli": "^0.8.2",
+    "nodemon": "^1.7.1",
+    "standard": "^5.4.1"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "stage-0"
+    ]
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "global": [
+      "jest",
+      "describe",
+      "it",
+      "pit",
+      "expect",
+      "afterEach",
+      "beforeEach"
+    ]
+  },
+  "jest": {
+    "scriptPreprocessor": "<rootDir>/node_modules/babel-jest",
+    "testPathDirs": [
+      "src"
+    ]
   }
 }
