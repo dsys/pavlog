@@ -12,7 +12,7 @@ NODE ?= ./node_modules/.bin/babel-node
 # phony targets
 
 build:
-	./node_modules/.bin/babel src --out-dir dist
+	./node_modules/.bin/babel src --ignore __tests__,__mocks__ --out-dir dist
 
 clean:
 	@- rm -rf node_modules

@@ -16,6 +16,11 @@
   "bugs": {
     "url": "https://github.com/pavlovml/pavlog/issues"
   },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist/"
+  ],
   "dependencies": {
     "debug": "^2.2.0",
     "lodash": "^3.10.1",
