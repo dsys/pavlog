@@ -19,7 +19,7 @@ function combineNames (...names) {
 
 const LOGGERS = {}
 
-module.exports = function createLogger (name = '', parentEmitter = null) {
+function createLogger (name = '', parentEmitter = null) {
   if (!isValidName(name)) {
     throw new Error(`Invalid log name '${name}'`)
   } else if (name in LOGGERS) {
@@ -68,3 +68,5 @@ module.exports = function createLogger (name = '', parentEmitter = null) {
     return logger
   }
 }
+
+export default createLogger

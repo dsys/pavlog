@@ -3,8 +3,8 @@ jest.dontMock('../logger')
 jest.dontMock('events')
 jest.dontMock('lodash')
 
-const consoleListener = require('../listeners/console')
-const createLogger = require('../logger')
+const consoleListener = require('../listeners/console').default
+const createLogger = require('../logger').default
 const { LEVELS } = require('../levels')
 
 describe('logger', () => {

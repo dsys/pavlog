@@ -1,1 +1,1 @@
-module.exports = jest.genMockFunction()
+export default jest.genMockFunction()

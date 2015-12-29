@@ -22,7 +22,7 @@ function findOrCreateDebugFn (level, name) {
   }
 }
 
-module.exports = function ({ level, name, data }) {
+export default function ({ level, name, data }) {
   const debugFn = findOrCreateDebugFn(level, name)
   debugFn(...data)
 }
