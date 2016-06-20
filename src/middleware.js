@@ -1,4 +1,3 @@
-import createLogger from './logger'
 import morgan from 'morgan'
 import through2 from 'through2'
 

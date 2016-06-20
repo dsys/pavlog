@@ -20,9 +20,9 @@ describe('console listener', () => {
   })
 
   it('prints logs using node-debug', () => {
-    consoleListener({ level: 'info', name: '', data: ['foo'] })
-    consoleListener({ level: 'debug', name: 'test', data: ['bar'] })
-    consoleListener({ level: 'fatal', name: 'a:b:c', data: ['baz'] })
+    consoleListener({ level: 'info', name: '', data: { message: 'foo' } })
+    consoleListener({ level: 'debug', name: 'test', data: { message: 'bar' } })
+    consoleListener({ level: 'fatal', name: 'a:b:c', data: { message: 'baz' } })
 
     expect(console.log.mock.calls.length).toBe(2)
     expect(stripColors(console.log.mock.calls[0][0])).toMatch(/info foo/)
@@ -30,6 +30,14 @@ describe('console listener', () => {
 
     expect(console.error.mock.calls.length).toBe(1)
     expect(stripColors(console.error.mock.calls[0][0])).toMatch(/a:b:c:fatal baz/)
+  })
+
+  it('prints errors using node-debug', () => {
+    const err = new Error('foobar')
+    consoleListener({ level: 'error', name: '', data: { err } })
+    expect(console.error.mock.calls.length).toBe(1)
+    expect(stripColors(console.error.mock.calls[0][0]))
+      .toMatch(/error Error: foobar/)
   })
 
   afterEach(() => {

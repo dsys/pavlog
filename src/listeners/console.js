@@ -24,5 +24,9 @@ function findOrCreateDebugFn (level, name) {
 
 export default function ({ level, name, data }) {
   const debugFn = findOrCreateDebugFn(level, name)
-  debugFn(...data)
+  if (data.err) {
+    debugFn(data.err)
+  } else {
+    debugFn(data.message)
+  }
 }

@@ -1,12 +1,11 @@
 # ==============================================================================
 # config
 
-.PHONY: default build clean format install lint publish test
+.PHONY: default build clean install lint publish test
 
 default: test
 
 WATCH ?= false
-NODE ?= ./node_modules/.bin/babel-node
 
 # ==============================================================================
 # phony targets
@@ -17,14 +16,11 @@ build:
 clean:
 	@- rm -rf node_modules
 
-format: | node_modules
-	./node_modules/.bin/standard --format src/**/*.js
-
 install:
 	npm install
 
 lint: | node_modules
-	./node_modules/.bin/standard src/**/*.js
+	./node_modules/.bin/standard
 
 publish: build
 	npm publish
