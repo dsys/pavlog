@@ -11,11 +11,7 @@ function isValidName (name) {
 }
 
 function combineNames (...names) {
-  return _(names)
-    .map(n => n.split(':'))
-    .flatten()
-    .compact()
-    .join(':')
+  return _.compact(_.flatten(names.map(n => n.split(':')))).join(':')
 }
 
 function applyFormat (format, details) {
