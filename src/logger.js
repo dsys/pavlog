@@ -46,7 +46,10 @@ function createLogger (name = '', parentEmitter = null) {
         throw new Error('invalid details object')
       }
 
-      const data = Object.assign({}, details)
+      const data = Object.assign({
+        pavlog: name, level,
+        timestamp: new Date().toISOString()
+      }, details)
 
       if (_.isError(formatOrErr)) {
         Object.assign(data, {
@@ -63,7 +66,7 @@ function createLogger (name = '', parentEmitter = null) {
         throw new Error('invalid format')
       }
 
-      emitter.emit('log', { level, name, data })
+      emitter.emit('log', data)
     }
 
     const logger = (...args) => emitLog(DEFAULT_LEVEL, name, ...args)
@@ -101,8 +104,8 @@ function createLogger (name = '', parentEmitter = null) {
           remoteAddress: tokens['remote-addr'](req, res),
           method: tokens['method'](req, res),
           url: tokens['url'](req, res),
-          status: tokens['status'](req, res),
-          responseTime: tokens['response-time'](req, res),
+          status: parseInt(tokens['status'](req, res), 10),
+          responseTime: parseFloat(tokens['response-time'](req, res), 10),
           contentLength: tokens['res'](req, res, 'content-length')
         }
 

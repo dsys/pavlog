@@ -38,6 +38,7 @@
     "eslint": "^2.13.1",
     "eslint-plugin-babel": "^2.1.1",
     "jest-cli": "^12.1.1",
+    "mockdate": "^1.0.4",
     "node-mocks-http": "^1.5.2",
     "nodemon": "^1.7.1",
     "standard": "^7.1.2",

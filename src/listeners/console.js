@@ -22,8 +22,8 @@ function findOrCreateDebugFn (level, name) {
   }
 }
 
-export default function ({ level, name, data }) {
-  const debugFn = findOrCreateDebugFn(level, name)
+export default function (data) {
+  const debugFn = findOrCreateDebugFn(data.level, data.pavlog)
   if (data.err) {
     debugFn(data.err)
   } else {

@@ -2,10 +2,13 @@ import consoleListener from '../listeners/console'
 import createLogger from '../logger'
 import http from 'http'
 import supertest from 'supertest'
+import MockDate from 'mockdate'
 import { LEVELS } from '../levels'
 
 jest.disableAutomock()
 jest.mock('../listeners/console')
+
+MockDate.set(0)
 
 describe('logger', () => {
   it('emits log events at the INFO level when called directly', () => {
@@ -16,13 +19,12 @@ describe('logger', () => {
     logger('foobar', { test: 'data' })
 
     expect(listener).toBeCalledWith({
+      pavlog: '',
       level: 'info',
-      name: '',
-      data: {
-        message: 'foobar',
-        format: 'foobar',
-        test: 'data'
-      }
+      timestamp: '1970-01-01T00:00:00.000Z',
+      message: 'foobar',
+      format: 'foobar',
+      test: 'data'
     })
   })
 
@@ -34,17 +36,15 @@ describe('logger', () => {
       logger.use(level, listener)
 
       const logFn = logger[level]
-      logFn('foobar', { level, test: 'data' })
+      logFn('foobar', { test: level })
 
       expect(listener).toBeCalledWith({
-        level: level,
-        name: '',
-        data: {
-          message: 'foobar',
-          format: 'foobar',
-          level,
-          test: 'data'
-        }
+        pavlog: '',
+        level,
+        timestamp: '1970-01-01T00:00:00.000Z',
+        message: 'foobar',
+        format: 'foobar',
+        test: level
       })
     }
   })
@@ -61,15 +61,19 @@ describe('logger', () => {
     logger.fatal('fatalEvent')
 
     const infoEvent = {
+      pavlog: '',
       level: 'info',
-      name: '',
-      data: { message: 'infoEvent', format: 'infoEvent' }
+      timestamp: '1970-01-01T00:00:00.000Z',
+      message: 'infoEvent',
+      format: 'infoEvent'
     }
 
     const fatalEvent = {
+      pavlog: '',
       level: 'fatal',
-      name: '',
-      data: { message: 'fatalEvent', format: 'fatalEvent' }
+      timestamp: '1970-01-01T00:00:00.000Z',
+      message: 'fatalEvent',
+      format: 'fatalEvent'
     }
 
     expect(infoListener.mock.calls.length).toBe(2)
@@ -97,15 +101,21 @@ describe('logger', () => {
     childLog.fatal('fatalEvent', { test: 'data' })
 
     const infoEvent = {
+      pavlog: 'sam:marc',
       level: 'info',
-      name: 'sam:marc',
-      data: { message: 'infoEvent', format: 'infoEvent', test: 'data' }
+      timestamp: '1970-01-01T00:00:00.000Z',
+      message: 'infoEvent',
+      format: 'infoEvent',
+      test: 'data'
     }
 
     const fatalEvent = {
+      pavlog: 'sam:marc:alex',
       level: 'fatal',
-      name: 'sam:marc:alex',
-      data: { message: 'fatalEvent', format: 'fatalEvent', test: 'data' }
+      timestamp: '1970-01-01T00:00:00.000Z',
+      message: 'fatalEvent',
+      format: 'fatalEvent',
+      test: 'data'
     }
 
     expect(childListener.mock.calls.length).toBe(1)
@@ -139,9 +149,11 @@ describe('logger', () => {
 
     expect(consoleListener.mock.calls.length).toBe(1)
     expect(consoleListener.mock.calls[0]).toEqual([{
+      pavlog: 'console',
       level: 'info',
-      name: 'console',
-      data: { message: 'foobar', format: 'foobar' }
+      timestamp: '1970-01-01T00:00:00.000Z',
+      message: 'foobar',
+      format: 'foobar'
     }])
   })
 
@@ -162,13 +174,12 @@ describe('logger', () => {
     logger.error(err)
 
     expect(listener).toBeCalledWith({
+      pavlog: '',
       level: 'error',
-      name: '',
-      data: {
-        err,
-        message: err.message,
-        stack: err.stack
-      }
+      timestamp: '1970-01-01T00:00:00.000Z',
+      err,
+      message: err.message,
+      stack: err.stack
     })
   })
 
@@ -192,14 +203,13 @@ describe('logger', () => {
     logger('one {two} three { four } five', { two: 2, four: 'FOUR' })
 
     expect(listener).toBeCalledWith({
+      pavlog: '',
       level: 'info',
-      name: '',
-      data: {
-        format: 'one {two} three { four } five',
-        message: 'one 2 three FOUR five',
-        two: 2,
-        four: 'FOUR'
-      }
+      timestamp: '1970-01-01T00:00:00.000Z',
+      format: 'one {two} three { four } five',
+      message: 'one 2 three FOUR five',
+      two: 2,
+      four: 'FOUR'
     })
   })
 
@@ -231,15 +241,15 @@ describe('logger', () => {
     jest.runAllTicks()
 
     expect(listener.mock.calls.length).toBe(1)
+    expect(listener.mock.calls[0][0].pavlog).toEqual('')
     expect(listener.mock.calls[0][0].level).toEqual('info')
-    expect(listener.mock.calls[0][0].name).toEqual('')
-    expect(listener.mock.calls[0][0].data.contentLength).toEqual('6')
-    expect(listener.mock.calls[0][0].data.format).toEqual('{method} {url} {status} {responseTime} ms - {contentLength}')
-    expect(listener.mock.calls[0][0].data.message).toMatch(/GET \/nice-path-yo 200/)
-    expect(listener.mock.calls[0][0].data.method).toEqual('GET')
-    expect(listener.mock.calls[0][0].data.remoteAddress).toMatch(/127.0.0.1/)
-    expect(listener.mock.calls[0][0].data.responseTime).toMatch(/[\d\.]+/)
-    expect(listener.mock.calls[0][0].data.status).toMatch('200')
-    expect(listener.mock.calls[0][0].data.url).toMatch('/nice-path-yo')
+    expect(listener.mock.calls[0][0].contentLength).toEqual('6')
+    expect(listener.mock.calls[0][0].format).toEqual('{method} {url} {status} {responseTime} ms - {contentLength}')
+    expect(listener.mock.calls[0][0].message).toMatch(/GET \/nice-path-yo 200/)
+    expect(listener.mock.calls[0][0].method).toEqual('GET')
+    expect(listener.mock.calls[0][0].remoteAddress).toMatch(/127.0.0.1/)
+    expect(listener.mock.calls[0][0].responseTime).toMatch(/[\d\.]+/)
+    expect(listener.mock.calls[0][0].status).toMatch('200')
+    expect(listener.mock.calls[0][0].url).toMatch('/nice-path-yo')
   })
 })
