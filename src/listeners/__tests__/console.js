@@ -2,7 +2,7 @@ jest.dontMock('../console')
 jest.dontMock('debug')
 jest.dontMock('lodash')
 
-const consoleListener = require('../console').default
+const consoleListener = require('../console')
 
 function stripColors (str) {
   return str.replace(/\033\[[0-9;]*m/g, '')

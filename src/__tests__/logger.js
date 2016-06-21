@@ -1,11 +1,11 @@
-jest.dontMock('../levels')
-jest.dontMock('../logger')
-jest.dontMock('events')
-jest.dontMock('lodash')
+import consoleListener from '../listeners/console'
+import createLogger from '../logger'
+import http from 'http'
+import supertest from 'supertest'
+import { LEVELS } from '../levels'
 
-const consoleListener = require('../listeners/console').default
-const createLogger = require('../logger').default
-const { LEVELS } = require('../levels')
+jest.disableAutomock()
+jest.mock('../listeners/console')
 
 describe('logger', () => {
   it('emits log events at the INFO level when called directly', () => {
@@ -126,9 +126,9 @@ describe('logger', () => {
     expect(() => createLogger('-abc-')).not.toThrow()
     expect(() => createLogger('_abc_')).not.toThrow()
     expect(() => createLogger('a:b:c')).not.toThrow()
-    expect(() => createLogger('$')).toThrow("invalid log name '$'")
-    expect(() => createLogger(' ')).toThrow("invalid log name ' '")
-    expect(() => createLogger('a*c')).toThrow("invalid log name 'a*c'")
+    expect(() => createLogger('$')).toThrow()
+    expect(() => createLogger(' ')).toThrow()
+    expect(() => createLogger('a*c')).toThrow()
   })
 
   it('has a helper for using a console listener', () => {
@@ -174,12 +174,14 @@ describe('logger', () => {
 
   it('throws an error for invalid formats', () => {
     const logger = createLogger()
-    expect(() => logger({ foo: 'bar' })).toThrow('invalid format')
+    expect(() => logger({ foo: 'bar' }))
+      .toThrow(new Error('invalid format'))
   })
 
   it('throws an error for invalid details', () => {
     const logger = createLogger()
-    expect(() => logger('foo', 'bar')).toThrow('invalid details')
+    expect(() => logger('foo', 'bar'))
+      .toThrow(new Error('invalid details object'))
   })
 
   it('applies the format using the provided details', () => {
@@ -204,6 +206,40 @@ describe('logger', () => {
   it('throws an error if the format contains unknown keys', () => {
     const logger = createLogger()
     expect(() => logger('one {two} three {four} five', { two: 2 }))
-      .toThrow('four is not defined')
+      .toThrow(new Error('four is not defined'))
+  })
+
+  it('logs HTTP requests via middleware', async () => {
+    const logger = createLogger()
+    const listener = jest.genMockFunction()
+    logger.use('info', listener)
+
+    const mw = logger.middleware()
+    const server = http.createServer((req, res) => {
+      mw(req, res, () => {
+        res.statusCode = 200
+        res.setHeader('Content-Length', '6')
+        res.write('foobar')
+        res.end()
+      })
+    })
+
+    await supertest(server)
+      .get('/nice-path-yo')
+      .expect(200)
+
+    jest.runAllTicks()
+
+    expect(listener.mock.calls.length).toBe(1)
+    expect(listener.mock.calls[0][0].level).toEqual('info')
+    expect(listener.mock.calls[0][0].name).toEqual('')
+    expect(listener.mock.calls[0][0].data.contentLength).toEqual('6')
+    expect(listener.mock.calls[0][0].data.format).toEqual('{method} {url} {status} {responseTime} ms - {contentLength}')
+    expect(listener.mock.calls[0][0].data.message).toMatch(/GET \/nice-path-yo 200/)
+    expect(listener.mock.calls[0][0].data.method).toEqual('GET')
+    expect(listener.mock.calls[0][0].data.remoteAddress).toMatch(/127.0.0.1/)
+    expect(listener.mock.calls[0][0].data.responseTime).toMatch(/[\d\.]+/)
+    expect(listener.mock.calls[0][0].data.status).toMatch('200')
+    expect(listener.mock.calls[0][0].data.url).toMatch('/nice-path-yo')
   })
 })

@@ -1,10 +1,12 @@
-import consoleListener from './listeners/console'
 import EventEmitter from 'events'
 import _ from 'lodash'
+import consoleListener from './listeners/console'
+import morgan from 'morgan'
 import { LEVELS, DEFAULT_LEVEL, isValidLevel, compareLevels } from './levels'
 
-const NAME_REGEXP = /^([\w-]+(:[\w-]+)*)?$/
+const DEFAULT_MIDDLEWARE_FORMAT = '{method} {url} {status} {responseTime} ms - {contentLength}'
 const FORMAT_REGEXP = /{([\s\S]+?)}/g
+const NAME_REGEXP = /^([\w-]+(:[\w-]+)*)?$/
 
 function isValidName (name) {
   return NAME_REGEXP.test(name)
@@ -21,6 +23,12 @@ function applyFormat (format, details) {
 
 const LOGGERS = {}
 
+/**
+ * Creates a logger function-object.
+ * @param {string} name
+ * @param {?EventEmitter} parentEmitter
+ * @returns {Object}
+ */
 function createLogger (name = '', parentEmitter = null) {
   if (!isValidName(name)) {
     throw new Error(`invalid log name '${name}'`)
@@ -34,8 +42,8 @@ function createLogger (name = '', parentEmitter = null) {
     }
 
     const emitLog = (level, name, formatOrErr, details = {}) => {
-      if (!_.isObject(details)) {
-        throw new Error('invalid details')
+      if (typeof details !== 'object') {
+        throw new Error('invalid details object')
       }
 
       const data = Object.assign({}, details)
@@ -46,7 +54,7 @@ function createLogger (name = '', parentEmitter = null) {
           stack: formatOrErr.stack,
           message: formatOrErr.message
         })
-      } else if (_.isString(formatOrErr)) {
+      } else if (typeof formatOrErr === 'string') {
         Object.assign(data, {
           format: formatOrErr,
           message: applyFormat(formatOrErr, details)
@@ -82,6 +90,24 @@ function createLogger (name = '', parentEmitter = null) {
     logger.child = (namePart) => {
       const childName = combineNames(name, namePart)
       return createLogger(childName, emitter)
+    }
+
+    logger.middleware = ({
+      level = DEFAULT_LEVEL,
+      format = DEFAULT_MIDDLEWARE_FORMAT
+    } = {}) => {
+      return morgan((tokens, req, res) => {
+        const details = {
+          remoteAddress: tokens['remote-addr'](req, res),
+          method: tokens['method'](req, res),
+          url: tokens['url'](req, res),
+          status: tokens['status'](req, res),
+          responseTime: tokens['response-time'](req, res),
+          contentLength: tokens['res'](req, res, 'content-length')
+        }
+
+        logger(format, details)
+      })
     }
 
     LOGGERS[name] = logger
