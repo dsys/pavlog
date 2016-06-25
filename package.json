@@ -1,6 +1,6 @@
 {
   "name": "pavlog",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "Unified logging for npm modules.",
   "author": "Alex Kern <alex@kern.io> (http://kern.io)",
   "homepage": "https://github.com/pavlovml/pavlog#readme",
