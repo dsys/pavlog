@@ -1,4 +1,5 @@
 import consoleListener from '../listeners/console'
+import jsonListener from '../listeners/json'
 import createLogger from '../logger'
 import http from 'http'
 import supertest from 'supertest'
@@ -7,6 +8,7 @@ import { LEVELS } from '../levels'
 
 jest.disableAutomock()
 jest.mock('../listeners/console')
+jest.mock('../listeners/json')
 
 MockDate.set(0)
 
@@ -141,7 +143,7 @@ describe('logger', () => {
     expect(() => createLogger('a*c')).toThrow()
   })
 
-  it('has a helper for using a console listener', () => {
+  it('has a helper for using a human-friendly console listener', () => {
     const logger = createLogger('console')
 
     logger.useConsole()
@@ -149,6 +151,22 @@ describe('logger', () => {
 
     expect(consoleListener.mock.calls.length).toBe(1)
     expect(consoleListener.mock.calls[0]).toEqual([{
+      pavlog: 'console',
+      level: 'info',
+      timestamp: '1970-01-01T00:00:00.000Z',
+      message: 'foobar',
+      format: 'foobar'
+    }])
+  })
+
+  it('has a helper for using a JSON console listener', () => {
+    const logger = createLogger('console')
+
+    logger.useConsole({ json: true })
+    logger('foobar')
+
+    expect(jsonListener.mock.calls.length).toBe(1)
+    expect(jsonListener.mock.calls[0]).toEqual([{
       pavlog: 'console',
       level: 'info',
       timestamp: '1970-01-01T00:00:00.000Z',

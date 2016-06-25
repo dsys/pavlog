@@ -1,6 +1,7 @@
 import EventEmitter from 'events'
 import _ from 'lodash'
 import consoleListener from './listeners/console'
+import jsonListener from './listeners/json'
 import morgan from 'morgan'
 import { LEVELS, DEFAULT_LEVEL, isValidLevel, compareLevels } from './levels'
 
@@ -86,8 +87,15 @@ function createLogger (name = '', parentEmitter = null) {
       }
     }
 
-    logger.useConsole = (minLevel = DEFAULT_LEVEL) => {
-      return logger.use(minLevel, consoleListener)
+    logger.useConsole = ({
+      json = false,
+      minLevel = DEFAULT_LEVEL
+    } = {}) => {
+      if (json) {
+        return logger.use(minLevel, jsonListener)
+      } else {
+        return logger.use(minLevel, consoleListener)
+      }
     }
 
     logger.child = (namePart) => {
